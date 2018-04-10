@@ -45,8 +45,7 @@ When you want to build your project…
 
 ---
 
-
-## The best of Maven and Ant
+## Balance between Maven and Ant
 
 * relatively unopinionated (while Maven imposes standards)
 * flexible - any project structure is possible
@@ -88,10 +87,10 @@ When you want to build your project…
 ## Project dependencies
 
 * grouped into configurations
-* types of configs are determined by plugins
-* ie Java plugin:
-  * compile, testCompile
-  * runtime, testRuntime
+* types of configs are determined by plugins, ie. Java plugin:
+  * `compile`
+  * `testCompile`
+  * ...
 * deterministic conflict resolution
 
 ```groovy
@@ -111,7 +110,23 @@ dependencies {
 * `mavenCentral()`, `jcenter()`, …
 * custom repos (maven, ivy, local directories)
 
+---
 
+## Project dependencies - repos
+
+```groovy
+repositories.ivy {
+    url 'http://central.maven.org/maven2/'
+    layout('pattern') {
+        artifact '[organisation]/[module]/[revision]/[module]-[revision].[ext]'
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12@jar'
+    //...
+}
+```
 
 ---
 
@@ -364,7 +379,7 @@ TODO example
 
 ---
 
-## Task syntax
+## Gradle syntax - tasks
 
 ```groovy
 task someName(type: Zip)
@@ -378,10 +393,14 @@ tasks.getByName('someName') dependsOn 'sth'
 
 ---
 
-## JSON-like constructs…
+## Gradle syntax - JSON like constructs?
 
 ```groovy
-subprojects {
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+
     apply plugin: 'java'
 
     dependencies {
@@ -496,15 +515,31 @@ void addMethodToMetaClass() {
 
 ---
 
-## Less magic - almost Java ;)
+## No magic - valid Java
 
 ```groovy
-project.subprojects({Project prj ->
-    prj.apply(plugin: 'java');
-
-    prj.dependencies({ DependencyHandler dh ->
-        dh.add('testCompile', 'junit:junit:4.12');
-    });
+project.allprojects(new Closure(this) {
+    @Override
+    public Object call(Object... arguments) {
+        Project delegate = (Project) getDelegate();
+        delegate.repositories(new Closure(this) {
+            @Override
+            public Object call(Object... args2) {
+                return ((RepositoryHandler) getDelegate()).mavenCentral();
+            }
+        });
+        Map<String, String> options = new HashMap<>();
+        options.put("plugin", "java");
+        delegate.apply(options);
+        delegate.dependencies(new Closure(this) {
+            @Override
+            public Object call(Object... args2) {
+                return ((DependencyHandler) getDelegate())
+                        .add("testCompile", "junit:junit:4.12");
+            }
+        });
+        return null;
+    }
 });
 ```
 
@@ -514,7 +549,11 @@ project.subprojects({Project prj ->
 ## And groovy again
 
 ```groovy
-subprojects {
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+
     apply plugin: 'java'
 
     dependencies {

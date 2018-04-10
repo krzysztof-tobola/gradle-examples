@@ -1,0 +1,23 @@
+project.allprojects(new Closure(this) {
+    @Override
+    public Object call(Object... arguments) {
+        Project delegate = (Project) getDelegate();
+        delegate.repositories(new Closure(this) {
+            @Override
+            public Object call(Object... args2) {
+                return ((RepositoryHandler) getDelegate()).mavenCentral();
+            }
+        });
+        Map<String, String> options = new HashMap<>();
+        options.put("plugin", "java");
+        delegate.apply(options);
+        delegate.dependencies(new Closure(this) {
+            @Override
+            public Object call(Object... args2) {
+                return ((DependencyHandler) getDelegate())
+                        .add("testCompile", "junit:junit:4.12");
+            }
+        });
+        return null;
+    }
+});
