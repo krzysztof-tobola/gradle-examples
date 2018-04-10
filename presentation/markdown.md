@@ -247,7 +247,8 @@ apply plugin: com.example.ExamplePlugin
 
 ## Groovy - dynamic Java
 
-* most of the time, Java 7 is valid Groovy*
+* most of the time, Java 7 is valid Groovy
+* except lambdas
 
 
 ```groovy
@@ -259,9 +260,6 @@ public void method(Runnable task) {
     });
 }
 ```
-
-***
-<sup>*</sup>Java 8 lambda syntax wont compile
 
 ---
 
@@ -396,44 +394,127 @@ tasks.getByName('someName') dependsOn 'sth'
 ## Gradle syntax - JSON like constructs?
 
 ```groovy
-allprojects {
+project.allprojects {
     repositories {
         mavenCentral()
     }
-
+    
     apply plugin: 'java'
-
+    
     dependencies {
-        testCompile 'junit:junit:4.12'
+        testCompile "junit:junit:4.12"
     }
 }
 ```
 
 ---
 
-## …are method calls
+## ...are actually method calls
 
 ```groovy
-subprojects({
-    apply(plugin: 'java');
-
+project.allprojects({
+    repositories({
+        mavenCentral()
+    })
+    
+    apply([plugin: 'java'])
+    
     dependencies({
-        testCompile('junit:junit:4.12');
-    });
-});
+        testCompile("junit:junit:4.12")
+    })
+})
 ```
 
 ---
 
-## …and closure delegates
+## invoked on delegates
 
 ```groovy
-subprojects({Project prj ->
-    prj.apply(plugin: 'java');
+project.allprojects({
+    getDelegate().repositories({
+        getDelegate().mavenCentral()
+    })
+    
+    getDelegate().apply([plugin: 'java'])
+    
+    getDelegate().dependencies({
+        getDelegate().testCompile("junit:junit:4.12")
+    })
+})
+```
 
-    prj.dependencies({ DependencyHandler dh ->
-        dh.testCompile('junit:junit:4.12');
-    });
+---
+
+## of Groovy Closures
+
+```groovy
+project.allprojects(new Closure(this) {
+    Object call(Object... arguments) {
+        getDelegate().repositories(new Closure(this) {
+            Object call(Object... args2) {
+                getDelegate().mavenCentral()
+            }
+        })
+        
+        getDelegate().apply([plugin: 'java'])
+        
+        getDelegate().dependencies(new Closure(this) {
+            Object call(Object... args2) {
+                getDelegate().testCompile("junit:junit:4.12")
+            }
+        })
+    }
+})
+```
+
+---
+
+## of Groovy Closures
+
+```groovy
+project.allprojects(new Closure(this) {
+    Object call(Object... arguments) {
+
+        getDelegate().repositories(new Closure(this) {
+            Object call(Object... args2) {
+                getDelegate().mavenCentral()
+            }
+        })
+        Map<String, String> options = new HashMap<>()
+        options.put("plugin", "java")
+        getDelegate().apply(options)
+        getDelegate().dependencies(new Closure(this) {
+            Object call(Object... args2) {
+                getDelegate().testCompile("junit:junit:4.12")
+            }
+        })
+    }
+})
+```
+
+---
+
+## of Groovy Closures
+
+```groovy
+project.allprojects(new Closure(this) {
+    Object call(Object... arguments) {
+        Project delegate = (Project) getDelegate();
+        delegate.repositories(new Closure(this) {
+            Object call(Object... args2) {
+                ((RepositoryHandler) getDelegate()).mavenCentral();
+            }
+        });
+        Map<String, String> options = new HashMap<>();
+        options.put("plugin", "java");
+        delegate.apply(options);
+        delegate.dependencies(new Closure(this) {
+            Object call(Object... args2) {
+                ((DependencyHandler) getDelegate())
+                        .testCompile("junit:junit:4.12");
+            }
+        });
+    }
 });
 ```
 
@@ -514,6 +595,7 @@ void addMethodToMetaClass() {
 ```
 
 ---
+
 
 ## No magic - valid Java
 
