@@ -12,7 +12,7 @@ class: center middle
 ---
 class: center middle
 
-.full[![](img/flat.png)]
+.half[![](img/flat.png)]
 
 When you want to build your project…
 
@@ -86,19 +86,26 @@ When you want to build your project…
 
 ## Project dependencies
 
-* grouped into configurations
-* types of configs are determined by plugins, ie. Java plugin:
+* grouped into `configurations`
+* types of configurations are determined by plugins, ie. Java plugin:
   * `compile`
   * `testCompile`
   * ...
 * deterministic conflict resolution
 
+---
+
+## Project dependencies
+
 ```groovy
 dependencies {
-    compile project(':preupgrade')
+    compile project(':another-project')
+    
     compile 'args4j:args4j:2.32'
-    testCompile 'com.ab:cd:1.16.0'
+    
     runtime 'org.log:simple:1.7.12'
+    
+    testCompile 'com.ab:cd:1.16.0'
 }
 ```
 
@@ -137,11 +144,11 @@ dependencies {
 * can depend on one another to control execution flow
 
 ```groovy                                     
-//in script
-assemble.dependsOn distZip
+project.tasks.assemble.dependsOn project.tasks.distZip
 
-//in plugin
-project.tasks.getByName('assemble')  dependsOn 'distZip'
+project.assemble.dependsOn project.distZip
+
+assemble.dependsOn distZip
 
 ```
 
@@ -164,7 +171,11 @@ project.tasks.getByName('assemble')  dependsOn 'distZip'
 ```groovy
 println 'Configuration 1'
 
-task someTask() {
+project.afterEvaluate {
+    println 'Configuration 3'
+}
+
+task someTask {
     println 'Configuration 2'
 } doFirst {
     println 'Execution 1'
@@ -172,16 +183,12 @@ task someTask() {
     println 'Execution 2'
 }
 
-project.afterEvaluate {
-    println 'Configuration 3'
-}
-
 ```    
 
 ---
 
 ## Using plugins
-### core plugins
+### Core plugins
 
 ```groovy
 apply plugin: 'java'
@@ -209,6 +216,11 @@ apply plugin: 'net.researchgate.release'
 
 ```
 
+---
+
+## Using plugins
+### 3rd party plugins
+
 Plugin DSL
 
 ```groovy
@@ -221,7 +233,7 @@ plugins {
 ---
 
 ## Using plugins
-### from script
+### From script
 
 ```groovy
 apply from: 'other.gradle'
@@ -234,6 +246,7 @@ apply from: 'other.gradle'
 
 ```groovy
 apply plugin: net.researchgate.release.ReleasePlugin
+
 apply plugin: com.example.ExamplePlugin
 ```
 
@@ -248,12 +261,11 @@ apply plugin: com.example.ExamplePlugin
 ## Groovy - dynamic Java
 
 * most of the time, Java 7 is valid Groovy
-* except lambdas
 
 
 ```groovy
 public void method(Runnable task) {
-    whenNotRunning(task, new Closure() {
+    whenNotRunning(task, new Closure(this) {
         Object call() {
             return owner.run("task-" + task);
         }
@@ -261,11 +273,13 @@ public void method(Runnable task) {
 }
 ```
 
+* Java 8 lambda syntax won't compile
+
 ---
 
-## Dynamic Java?
+## Groovy - dynamic Java?
 
-But idiomatic Groovy hardly looks like Java
+* But idiomatic Groovy hardly looks like Java
 
 ```groovy
 def method(task) {
@@ -284,12 +298,14 @@ def method(task) {
 * omit braces   
 
 ```groovy
+method(x, y)
+``` 
+
+
+```groovy
 method x, y
 ``` 
 
-```groovy
-method(x, y)
-``` 
 
 ---
 
@@ -352,7 +368,7 @@ subprojects { println "configuring project $name"}
 
 * one can create instance of Closure subclass
 
-TODO example
+
 
 ---
 
@@ -367,7 +383,7 @@ TODO example
 
 ## Understanding build.gradle
 
-* invoked as instance of gradle.api.Project (?)
+* invoked as closure on gradle.api.Project (?)
 * with DSL syntax sugar on top of groovy…
 * task syntax
 * simplified access to DSL objects
@@ -385,6 +401,8 @@ task someName(type: Zip)
 project.task 'name', type: Zip
 
 someName.dependsOn 'sth'
+
+tasks.someName dependsOn 'sth'
 
 tasks.getByName('someName') dependsOn 'sth'
 ```

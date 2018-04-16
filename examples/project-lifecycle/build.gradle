@@ -1,0 +1,23 @@
+logger.quiet 'Configuration 1'
+
+project.afterEvaluate {
+    logger.quiet 'Configuration 4'
+}
+
+task someTask {
+    logger.quiet 'Configuration 2'
+} doFirst {
+    logger.quiet 'Execution 1'
+} doLast {
+    logger.quiet 'Execution 2'
+}
+
+task build {
+    logger.quiet 'Configuration 3'
+} doFirst {
+    logger.quiet 'Execution 3'
+} doLast {
+    logger.quiet 'Execution 4'
+}
+
+build.dependsOn someTask
