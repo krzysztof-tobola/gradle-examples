@@ -74,7 +74,7 @@ When you want to build your project…
 * paths
   * separated by ":"
   * absolute if starts with the separator
-  * else relative to current
+  * else relative to the current project
   
 ---
 
@@ -143,16 +143,55 @@ dependencies {
 * defined directly in the script or in a plugin
 * can depend on one another to control execution flow
 
-```groovy                                     
-project.tasks.assemble.dependsOn project.tasks.distZip
+---
 
-project.assemble.dependsOn project.distZip
+## Tasks
 
-assemble.dependsOn distZip
+### Define in a script
+
+```groovy
+task task1(type: Zip) {
+//...
+}
+
+task task2 {
+//...
+}
+```
+
+---
+
+## Tasks
+
+### Define in a script or in a plugin
+
+```groovy
+project.task('task3') {
+//...
+}
+
+project.task('task4', type: Zip) {
+//...
+}
 
 ```
 
 ---
+
+## Tasks
+
+### Dependencies
+
+```groovy
+task3.dependsOn task4
+
+tasks.task3.dependsOn 'task4'
+
+tasks.getByName('task3') dependsOn 'task4'
+```
+
+---
+
 
 ## Project Lifecycle
 
@@ -254,22 +293,37 @@ apply plugin: com.example.ExamplePlugin
 
 ## Why does my build script look like JSON?
 
+---
+
+## Why does my build script look like JSON?
+
 .half[![x](img/magic.jpg)]
 
 ---
 
 ## Groovy - dynamic Java
 
-* most of the time, Java 7 is valid Groovy
+* Most of the time, Java 7 is valid Groovy
 
 
 ```groovy
-public void method(Runnable task) {
-    whenNotRunning(task, new Closure(this) {
-        Object call() {
-            return owner.run("task-" + task);
+public <T> List<T> nonNulls(List<T> list) {
+    return filter(list, new Closure<Boolean>(this) {
+        @Override
+        public Boolean call(Object arg) {
+            return arg != null;
         }
     });
+}
+
+public <T> List<T> filter(List<T> list, Closure<Boolean> closure) {
+    List<T> result = new ArrayList<>();
+    for (T item : list) {
+        if (closure.call(item)) {
+            result.add(item);
+        }
+    }
+    return result;
 }
 ```
 
@@ -282,10 +336,18 @@ public void method(Runnable task) {
 * But idiomatic Groovy hardly looks like Java
 
 ```groovy
-def method(task) {
-    whenNotRunning(task) {
-        run name: "task-${task}"
+def nonNulls(list) {
+    filter(list) { it != null }
+}
+
+def filter(list, closure) {
+    def result = []
+    list.each {
+        if (closure(it)) {
+            result.add it
+        }
     }
+    result
 }
 ```
 
@@ -295,10 +357,10 @@ def method(task) {
 
 ## Method call syntax
 
-* omit braces   
+* omit brackets and semicolons
 
 ```groovy
-method(x, y)
+method(x, y);
 ``` 
 
 
@@ -314,12 +376,12 @@ method x, y
 * pass map literals   
 
 ```groovy
-apply plugin: 'java'
-``` 
-
-```groovy
 apply(['plugin': 'java'])
 ```
+
+```groovy
+apply plugin: 'java'
+``` 
 
 ---
 
@@ -332,7 +394,7 @@ product 'IDEA'  withVersion '17.0.3' withCode 'IJ17'
 ``` 
 
 ```groovy
-product('IDEA') .withVersion('17.0.3') .withCode('IJ17')
+product('IDEA').withVersion('17.0.3').withCode('IJ17')
 ``` 
 
 ---
@@ -342,18 +404,18 @@ product('IDEA') .withVersion('17.0.3') .withCode('IJ17')
 * last argument of Closure type   
 
 ```groovy
-method('x') { action(it) }
+method('x', { action(it) })
 ``` 
 
 ```groovy
-method('x', { action(it) })
+method('x') { action(it) }
 ``` 
 
 ---
 
 ## Closures
 
-* literals
+### Literals
 
 ```groovy 
 { String x -> action(x) }
@@ -365,8 +427,20 @@ method('x', { action(it) })
 subprojects { println "configuring project $name"}
 ```
 
+---
 
-* an instance of Closure subclass
+## Closures
+
+### An instance of Closure subclass
+
+```groovy
+new Closure(this) {
+    @Override
+    Object call(Object... args) {
+    //...
+    }
+}
+```
 
 ---
 
@@ -382,52 +456,49 @@ subprojects { println "configuring project $name"}
 ## Understanding build.gradle
 
 * invoked almost like a `Closure` on `gradle.api.Project`
-* with DSL syntax sugar on top of groovy (task syntax)
-* extensions
-* containers
-* there is more…
-
----
-
-## Gradle syntax - tasks
 
 ```groovy
-//script only
-task task1(type: Zip)
-
-task task2
-
-//script and plugin
 project.with {
-    task ('task3') {
-    }
-    
-    task ('task4', type: Zip) {
-    }
-    
-    task3.dependsOn task4
-    
-    tasks.task3.dependsOn 'task4'
-    
-    tasks.getByName('task3') dependsOn 'task4'
+//...
+}
+```
+
+* with DSL task syntax
+
+```groovy
+task task1 doLast {
+//...
 }
 ```
 
 ---
 
-## Gradle syntax - JSON like constructs?
+## Gradle syntax - JSON-like constructs?
 
 ```groovy
-project.allprojects {
-    repositories {
-        mavenCentral()
-    }
-    
-    apply plugin: 'java'
-    
-    dependencies {
-        testCompile "junit:junit:4.12"
-    }
+allprojects {
+
+
+ 
+        repositories {
+        
+        
+                              mavenCentral()
+            
+        }
+        
+        
+        apply plugin: 'java'
+        dependencies {
+        
+        
+        
+                         testCompile "junit:junit:4.12"
+                         
+        }
+        
+        
+        
 }
 ```
 
@@ -437,15 +508,27 @@ project.allprojects {
 
 ```groovy
 project.allprojects({
-    repositories({
-        mavenCentral()
-    })
+
+
+
+        repositories({
+        
+        
+                              mavenCentral()
+            
+        })
     
-    apply([plugin: 'java'])
     
-    dependencies({
-        testCompile("junit:junit:4.12")
-    })
+        apply([plugin: 'java'])
+        dependencies({
+        
+        
+        
+                         testCompile("junit:junit:4.12")
+                         
+        })
+
+
 })
 ```
 
@@ -455,15 +538,27 @@ project.allprojects({
 
 ```groovy
 project.allprojects({
-    getDelegate().repositories({
-        getDelegate().mavenCentral()
-    })
-    
-    getDelegate().apply([plugin: 'java'])
-    
-    getDelegate().dependencies({
-        getDelegate().testCompile("junit:junit:4.12")
-    })
+
+
+
+        getDelegate().repositories({
+        
+        
+                getDelegate().mavenCentral()
+            
+        })
+        
+        
+        getDelegate().apply([plugin: 'java'])
+        getDelegate().dependencies({
+        
+        
+                getDelegate()
+                        .testCompile("junit:junit:4.12")
+            
+        })
+
+        
 })
 ```
 
@@ -473,20 +568,26 @@ project.allprojects({
 
 ```groovy
 project.allprojects(new Closure(this) {
+
     Object call(Object... arguments) {
+    
         getDelegate().repositories(new Closure(this) {
+        
             Object call(Object... args2) {
                 getDelegate().mavenCentral()
             }
         })
         
-        getDelegate().apply([plugin: 'java'])
         
+        getDelegate().apply([plugin: 'java'])
         getDelegate().dependencies(new Closure(this) {
+        
             Object call(Object... args2) {
-                getDelegate().testCompile("junit:junit:4.12")
+                getDelegate()
+                        .testCompile("junit:junit:4.12")
             }
         })
+        
     }
 })
 ```
@@ -497,9 +598,11 @@ project.allprojects(new Closure(this) {
 
 ```groovy
 project.allprojects(new Closure(this) {
+
     Object call(Object... arguments) {
 
         getDelegate().repositories(new Closure(this) {
+        
             Object call(Object... args2) {
                 getDelegate().mavenCentral()
             }
@@ -508,23 +611,28 @@ project.allprojects(new Closure(this) {
         options.put("plugin", "java")
         getDelegate().apply(options)
         getDelegate().dependencies(new Closure(this) {
+        
             Object call(Object... args2) {
-                getDelegate().testCompile("junit:junit:4.12")
+                getDelegate()
+                        .testCompile("junit:junit:4.12")
             }
         })
+        
     }
 })
 ```
 
 ---
 
-## of Groovy Closures
+## without type casts
 
 ```groovy
 project.allprojects(new Closure(this) {
+
     Object call(Object... arguments) {
         Project delegate = (Project) getDelegate();
         delegate.repositories(new Closure(this) {
+        
             Object call(Object... args2) {
                 ((RepositoryHandler) getDelegate()).mavenCentral();
             }
@@ -533,18 +641,20 @@ project.allprojects(new Closure(this) {
         options.put("plugin", "java");
         delegate.apply(options);
         delegate.dependencies(new Closure(this) {
+        
             Object call(Object... args2) {
                 ((DependencyHandler) getDelegate())
                         .testCompile("junit:junit:4.12");
             }
         });
+        
     }
 });
 ```
 
 ---
 
-## …but testCompile is not a method?!
+## …but DependencyHandler has no testCompile method?!
 
 ```groovy
 public interface DependencyHandler {
@@ -573,13 +683,13 @@ public interface DependencyHandler {
 
 ---
 
-## …but testCompile is not a method?!
+## …but DependencyHandler has no testCompile method?!
 
 .half[![x](img/wtf.jpg)]
 
 ---
 
-## Or is it…
+## Or maybe it does…
 
 ```java
 public class DefaultDependencyHandler 
@@ -605,7 +715,7 @@ public interface MethodMixIn {
 
 ---
 
-## … method added in runtime 
+## …have methods added in runtime 
 
 ```groovy
 @Test
@@ -694,7 +804,7 @@ allprojects {
 
 ## Extensions
 
-the easiest way of making plugins configurable
+the simplest way of making plugins configurable
 * create extension (in the plugin)
 * configure (in the build script)
 * use the values (in the plugin)

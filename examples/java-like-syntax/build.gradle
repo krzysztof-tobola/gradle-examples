@@ -4,7 +4,7 @@ project.allprojects(new Closure(this) {
         Project delegate = (Project) getDelegate();
         delegate.repositories(new Closure(this) {
             @Override
-            public Object call(Object... args2) {
+            Object call(Object... args2) {
                 return ((RepositoryHandler) getDelegate()).mavenCentral();
             }
         });

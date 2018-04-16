@@ -1,5 +1,6 @@
 logger.quiet 'Configuration 1'
 
+
 project.afterEvaluate {
     logger.quiet 'Configuration 4'
 }

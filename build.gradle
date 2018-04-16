@@ -1,5 +1,9 @@
 import static java.lang.Thread.currentThread
 
+project('examples:project-lifecycle').beforeEvaluate {
+    logger.quiet('Configuration 0')
+}
+
 task serve(group: "other", description: "Serve the presentation") doLast {
     def port = 8000
     def server = new SimpleHttpFileServerFactory().start(file("presentation/"), port)
