@@ -1,1 +1,1 @@
-apply plugin: com.github.tobolak.build.ExampleGroovyPlugin
+apply plugin: com.github.tobolak.gradle.ExampleGroovyPlugin

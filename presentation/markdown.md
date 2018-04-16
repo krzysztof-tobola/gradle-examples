@@ -30,7 +30,7 @@ When you want to build your project…
 ## Ant
 
 * you can do everything
-* customization requires lot of skill and work
+* customization requires a lot of skill and work
 
 .half[![](img/carpenter.jpg)]
 
@@ -45,7 +45,7 @@ When you want to build your project…
 
 ---
 
-## Balance between Maven and Ant
+## A balance between Maven and Ant
 
 * relatively unopinionated (while Maven imposes standards)
 * flexible - any project structure is possible
@@ -73,7 +73,7 @@ When you want to build your project…
   * all projects
 * paths
   * separated by ":"
-  * absolute if starts by separator
+  * absolute if starts with the separator
   * else relative to current
   
 ---
@@ -252,7 +252,7 @@ apply plugin: com.example.ExamplePlugin
 
 ---
 
-## Why my build script looks like JSON?
+## Why does my build script look like JSON?
 
 .half[![x](img/magic.jpg)]
 
@@ -366,9 +366,7 @@ subprojects { println "configuring project $name"}
 ```
 
 
-* one can create instance of Closure subclass
-
-
+* an instance of Closure subclass
 
 ---
 
@@ -383,10 +381,8 @@ subprojects { println "configuring project $name"}
 
 ## Understanding build.gradle
 
-* invoked as closure on gradle.api.Project (?)
-* with DSL syntax sugar on top of groovy…
-* task syntax
-* simplified access to DSL objects
+* invoked almost like a `Closure` on `gradle.api.Project`
+* with DSL syntax sugar on top of groovy (task syntax)
 * extensions
 * containers
 * there is more…
@@ -396,15 +392,25 @@ subprojects { println "configuring project $name"}
 ## Gradle syntax - tasks
 
 ```groovy
-task someName(type: Zip)
+//script only
+task task1(type: Zip)
 
-project.task 'name', type: Zip
+task task2
 
-someName.dependsOn 'sth'
-
-tasks.someName dependsOn 'sth'
-
-tasks.getByName('someName') dependsOn 'sth'
+//script and plugin
+project.with {
+    task ('task3') {
+    }
+    
+    task ('task4', type: Zip) {
+    }
+    
+    task3.dependsOn task4
+    
+    tasks.task3.dependsOn 'task4'
+    
+    tasks.getByName('task3') dependsOn 'task4'
+}
 ```
 
 ---
