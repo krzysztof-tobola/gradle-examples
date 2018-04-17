@@ -20,8 +20,9 @@ When you want to build your project…
 
 ## Maven
 
-* fast and easy to start
-* not so easy when you don’t want it the standard way
+* fast and *easy* to start
+* not so *easy* when you don’t want it the standard way
+* not *simple* (*complex* lifecycle, phases, goals, etc.)
 
 .half[![](img/ikea.jpg)]
 
@@ -30,7 +31,8 @@ When you want to build your project…
 ## Ant
 
 * you can do everything
-* customization requires a lot of skill and work
+* relatively *simple* tool that can be *difficult* to use
+* extending is not very *easy*
 
 .half[![](img/carpenter.jpg)]
 
@@ -38,7 +40,9 @@ When you want to build your project…
 
 ## Gradle
 
-* custom made furniture with your guidance
+* you can do everything
+* relatively *simple* model
+* extending via plugins is also *simple*
 
 .half[![x](img/furniture.jpg)]
 
@@ -50,7 +54,9 @@ When you want to build your project…
 * relatively unopinionated (while Maven imposes standards)
 * flexible - any project structure is possible
 * scriptable - no extra tooling needed, everything is Groovy
-* extensible - many plugins available, easy to create new ones
+* extensible - many plugins available, *easy*  to create new ones
+* the scripts can themselves become complex
+* builds can become *difficult* to understand
 
 ---
 
@@ -851,7 +857,7 @@ class ExamplePlugin implements Plugin<Project> {
             extensions.create("appsExtension", AppsExtension)
 
             afterEvaluate {
-                logger.quiet "After evaluate, apps = $extensions.appsExtension.apps"
+                logger.quiet "After evaluate, apps = $appsExtension.apps"
             }
         }
     }
@@ -862,7 +868,7 @@ class ExamplePlugin implements Plugin<Project> {
 
 ## Extensions - containers
 
-Goal - we want to have a cleaner syntax for configuring multiple named items
+### The goal - a cleaner syntax for multiple named items
 
 ```groovy
 apply plugin: ExamplePlugin
@@ -876,6 +882,7 @@ appsExtension {
 ---
 
 ## Extensions - containers
+### Create the single item class 
 
 ```groovy
 class App {
@@ -890,6 +897,7 @@ class App {
 ---
 
 ## Extensions - containers
+### Create the container and use it from the plugin
 
 ```groovy
 class ExamplePlugin implements Plugin<Project> {
