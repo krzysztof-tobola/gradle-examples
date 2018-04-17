@@ -1,0 +1,27 @@
+class AppsExtension {
+    def apps = []
+
+    def app(name, version) {
+        apps += "$name-$version"
+    }
+}
+
+class ExamplePlugin implements Plugin<Project> {
+    @Override
+    void apply(Project target) {
+        target.with {
+            extensions.create "appsExtension", AppsExtension
+
+            afterEvaluate {
+                logger.quiet "After evaluate, apps = $appsExtension.apps"
+            }
+        }
+    }
+}
+
+apply plugin: ExamplePlugin
+
+appsExtension {
+    app 'idea', '2018.1'
+    app 'eclipse', 'oxygen'
+}

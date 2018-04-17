@@ -1,0 +1,27 @@
+class App {
+    def name, version
+
+    App(name) { this.name = name }
+
+    String toString() { "$name-$version" }
+}
+
+class ExamplePlugin implements Plugin<Project> {
+    @Override
+    void apply(Project target) {
+        target.with {
+            extensions.appsExtension = container(App)
+
+            afterEvaluate {
+                logger.quiet "After evaluate, apps = $appsExtension"
+            }
+        }
+    }
+}
+
+apply plugin: ExamplePlugin
+
+appsExtension {
+    idea { version = '2018.1' }
+    eclipse { version = 'oxygen' }
+}

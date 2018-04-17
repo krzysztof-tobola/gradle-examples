@@ -498,7 +498,6 @@ allprojects {
         }
         
         
-        
 }
 ```
 
@@ -594,7 +593,7 @@ project.allprojects(new Closure(this) {
 
 ---
 
-## of Groovy Closures
+## without map literals
 
 ```groovy
 project.allprojects(new Closure(this) {
@@ -624,7 +623,7 @@ project.allprojects(new Closure(this) {
 
 ---
 
-## without type casts
+## with implicit type casts
 
 ```groovy
 project.allprojects(new Closure(this) {
@@ -804,22 +803,73 @@ allprojects {
 
 ## Extensions
 
-the simplest way of making plugins configurable
-* create extension (in the plugin)
-* configure (in the build script)
-* use the values (in the plugin)
+* the simplest way of making plugins configurable
+    * define the extension class
+    * create extension instance (in the plugin)
+    * configure (in the build script)
+    * use the values (in the plugin)
+
+---
+
+## Extensions
+### The goal - configure the plugin in a script
 
 ```groovy
-TODO generify
+apply plugin: ExamplePlugin
 
-extensions.create("someExtension", ApiDiffExtension)
-
-someExtension {
-    app 'x', 'y'
+appsExtension {
+    app 'idea', '2018.1'
+    app 'eclipse', 'oxygen'
 }
+```
 
-afterEvaluate {
-    println extensions.getByType(ApiDiffExtension).suiteApps
+---
+
+## Extensions
+### Create the extension class 
+
+```groovy
+class AppsExtension {
+    def apps = []
+
+    def app(name, version) {
+        apps += "$name-$version"
+    }
+}
+```
+
+---
+
+## Extensions
+### Create the extension instance and use it from the plugin
+
+```groovy
+class ExamplePlugin implements Plugin<Project> {
+    @Override
+    void apply(Project target) {
+        target.with {
+            extensions.create("appsExtension", AppsExtension)
+
+            afterEvaluate {
+                logger.quiet "After evaluate, apps = $extensions.appsExtension.apps"
+            }
+        }
+    }
+}
+```
+
+---
+
+## Extensions - containers
+
+Goal - we want to have a cleaner syntax for configuring multiple named items
+
+```groovy
+apply plugin: ExamplePlugin
+
+appsExtension {
+    idea { version = '2018.1' }
+    eclipse { version = 'oxygen' }
 }
 ```
 
@@ -829,20 +879,30 @@ afterEvaluate {
 
 ```groovy
 class App {
-    final String name
-    String version
-    App(String name) { this.name = name }
+    def name, version
+    
+    App(name) { this.name = name }
+    
+    String toString() { "$name-$version" }
 }
+```
 
-project.extensions.apps = project.container(App)
+---
 
-apps {
-    pc { version = '9.0.4' }
-    cc { version = '9.0.3' }
-}
+## Extensions - containers
 
-afterEvaluate {
-    apps.each { println "APP $it.name = $it.version" }
+```groovy
+class ExamplePlugin implements Plugin<Project> {
+    @Override
+    void apply(Project target) {
+        target.with {
+            extensions.appsExtension = container(App)
+
+            afterEvaluate {
+                logger.quiet "After evaluate, apps = $appsExtension"
+            }
+        }
+    }
 }
 ```
 
