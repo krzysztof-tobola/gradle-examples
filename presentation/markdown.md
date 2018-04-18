@@ -64,13 +64,15 @@ When you want to build your project…
 ## Basic concepts
 
 * project
-* project dependencies
+* project dependencies and repositories
 * tasks
+* lifecycle
 * plugins
 
 ---
 
-## Project
+## Basic concepts
+### Project
 
 * tree-like structure - *settings.gradle*
   * root project
@@ -84,13 +86,15 @@ When you want to build your project…
   
 ---
 
-## Project
+## Basic concepts
+### Project
   
 .half[![x](img/project-tree.png)]
 
 ---
 
-## Project dependencies
+## Basic concepts
+### Project dependencies
 
 * grouped into `configurations`
 * types of configurations are determined by plugins, ie. Java plugin:
@@ -101,7 +105,8 @@ When you want to build your project…
 
 ---
 
-## Project dependencies
+## Basic concepts
+### Project dependencies
 
 ```groovy
 dependencies {
@@ -117,7 +122,8 @@ dependencies {
 
 ---
 
-## Project dependencies - repos
+## Basic concepts
+### Repositories
 
 * different types (@see `RepositoryHandler`)
 * `mavenCentral()`, `jcenter()`, …
@@ -125,7 +131,8 @@ dependencies {
 
 ---
 
-## Project dependencies - repos
+## Basic concepts
+### Repositories
 
 ```groovy
 repositories.ivy {
@@ -143,7 +150,8 @@ dependencies {
 
 ---
 
-## Tasks
+## Basic concepts
+### Tasks
 
 * allow the build user to indicate things to execute
 * defined directly in the script or in a plugin
@@ -151,9 +159,8 @@ dependencies {
 
 ---
 
-## Tasks
-
-### Define in a script
+## Basic concepts
+### Tasks - DSL syntax
 
 ```groovy
 task task1(type: Zip) {
@@ -167,9 +174,8 @@ task task2 {
 
 ---
 
-## Tasks
-
-### Define in a script or in a plugin
+## Basic concepts
+### Tasks - standard Groovy syntax
 
 ```groovy
 project.task('task3') {
@@ -184,9 +190,8 @@ project.task('task4', type: Zip) {
 
 ---
 
-## Tasks
-
-### Dependencies
+## Basic concepts
+### Task dependencies
 
 ```groovy
 task3.dependsOn task4
@@ -198,8 +203,8 @@ tasks.getByName('task3') dependsOn 'task4'
 
 ---
 
-
-## Project Lifecycle
+## Basic concepts
+### Project Lifecycle
 
 * initialization
     * determine if single or structure of multiproject
@@ -211,7 +216,8 @@ tasks.getByName('task3') dependsOn 'task4'
 
 ---
 
-## Project Lifecycle
+## Basic concepts
+### Project Lifecycle
     
 ```groovy
 println 'Configuration 1'
@@ -232,8 +238,8 @@ task someTask {
 
 ---
 
-## Using plugins
-### Core plugins
+## Basic concepts
+### Using core plugins
 
 ```groovy
 apply plugin: 'java'
@@ -242,10 +248,8 @@ apply plugin: 'java'
 
 ---
 
-## Using plugins
-### 3rd party plugins
-
-'old' syntax
+## Basic concepts
+### Using 3rd party plugins via classic syntax
 
 ```groovy
 buildscript {
@@ -263,10 +267,8 @@ apply plugin: 'net.researchgate.release'
 
 ---
 
-## Using plugins
-### 3rd party plugins
-
-Plugin DSL
+## Basic concepts
+### Using 3rd party plugins via DSL
 
 ```groovy
 plugins {
@@ -277,8 +279,8 @@ plugins {
 
 ---
 
-## Using plugins
-### From script
+## Basic concepts
+### Using plugins from script
 
 ```groovy
 apply from: 'other.gradle'
@@ -286,8 +288,8 @@ apply from: 'other.gradle'
 
 ---
 
-## Using plugins
-### From class
+## Basic concepts
+### Using plugin classes
 
 ```groovy
 apply plugin: net.researchgate.release.ReleasePlugin
@@ -307,7 +309,7 @@ apply plugin: com.example.ExamplePlugin
 
 ---
 
-## Groovy - dynamic Java
+## Groovy - dynamic Java?
 
 * Most of the time, Java 7 is valid Groovy
 
@@ -361,7 +363,8 @@ def filter(list, closure) {
 
 ---
 
-## Method call syntax
+## Groovy - dynamic Java?
+### Method call syntax
 
 * omit brackets and semicolons
 
@@ -377,7 +380,8 @@ method x, y
 
 ---
 
-## Method call syntax
+## Groovy - dynamic Java?
+### Method call syntax
 
 * pass map literals   
 
@@ -391,7 +395,8 @@ apply plugin: 'java'
 
 ---
 
-## Method call syntax
+## Groovy - dynamic Java?
+### Method call syntax
 
 * chain method calls   
 
@@ -405,7 +410,8 @@ product('IDEA').withVersion('17.0.3').withCode('IJ17')
 
 ---
 
-## Method call syntax
+## Groovy - dynamic Java?
+### Method call syntax
 
 * last argument of Closure type   
 
@@ -419,9 +425,9 @@ method('x') { action(it) }
 
 ---
 
-## Closures
 
-### Literals
+## Groovy - dynamic Java?
+### Closures - literals
 
 ```groovy 
 { String x -> action(x) }
@@ -435,9 +441,8 @@ subprojects { println "configuring project $name"}
 
 ---
 
-## Closures
-
-### An instance of Closure subclass
+## Groovy - dynamic Java?
+### Closures - explicit Closure subclass
 
 ```groovy
 new Closure(this) {
@@ -450,7 +455,8 @@ new Closure(this) {
 
 ---
 
-## Closure delegation
+## Groovy - dynamic Java?
+### Closure delegation
 
 * `this` - object of enclosing class
 * `owner` - enclosing object (class or closure)
@@ -479,7 +485,8 @@ task task1 doLast {
 
 ---
 
-## Gradle syntax - JSON-like constructs?
+## Understanding build.gradle
+### JSON-like constructs...
 
 ```groovy
 allprojects {
@@ -509,7 +516,8 @@ allprojects {
 
 ---
 
-## ...are actually method calls
+## Understanding build.gradle
+### are actually method calls...
 
 ```groovy
 project.allprojects({
@@ -539,7 +547,8 @@ project.allprojects({
 
 ---
 
-## invoked on delegates
+## Understanding build.gradle
+### invoked on delegates...
 
 ```groovy
 project.allprojects({
@@ -569,7 +578,8 @@ project.allprojects({
 
 ---
 
-## of Groovy Closures
+## Understanding build.gradle
+### of Groovy Closures...
 
 ```groovy
 project.allprojects(new Closure(this) {
@@ -599,7 +609,8 @@ project.allprojects(new Closure(this) {
 
 ---
 
-## without map literals
+## Understanding build.gradle
+### without map literals...
 
 ```groovy
 project.allprojects(new Closure(this) {
@@ -629,7 +640,8 @@ project.allprojects(new Closure(this) {
 
 ---
 
-## with implicit type casts
+## Understanding build.gradle
+### with implicit type casts...
 
 ```groovy
 project.allprojects(new Closure(this) {
@@ -659,7 +671,8 @@ project.allprojects(new Closure(this) {
 
 ---
 
-## …but DependencyHandler has no testCompile method?!
+## Understanding build.gradle
+###but DependencyHandler has no testCompile method?!
 
 ```groovy
 public interface DependencyHandler {
@@ -688,13 +701,15 @@ public interface DependencyHandler {
 
 ---
 
-## …but DependencyHandler has no testCompile method?!
+## Understanding build.gradle
+###but DependencyHandler has no testCompile method?!
 
 .half[![x](img/wtf.jpg)]
 
 ---
 
-## Or maybe it does…
+## Understanding build.gradle
+### Or maybe it does…
 
 ```java
 public class DefaultDependencyHandler 
@@ -720,7 +735,8 @@ public interface MethodMixIn {
 
 ---
 
-## …have methods added in runtime 
+## Understanding build.gradle
+### …have methods added in runtime 
 
 ```groovy
 @Test
@@ -736,7 +752,8 @@ void addMethodToMetaClass() {
 ---
 
 
-## No magic - valid Java
+## Understanding build.gradle
+### No magic - valid Java
 
 ```groovy
 project.allprojects(new Closure(this) {
@@ -767,7 +784,8 @@ project.allprojects(new Closure(this) {
 
 ---
 
-## And groovy again
+## Understanding build.gradle
+### And groovy again
 
 ```groovy
 allprojects {
@@ -796,7 +814,8 @@ allprojects {
 
 ---
 
-## Plugins
+## Modularizing the build
+### Plugins
 
 * implement `org.gradle.api.Plugin<Project>` 
 * `apply(Project)` method
@@ -807,7 +826,8 @@ allprojects {
 
 ---
 
-## Extensions
+## Modularizing the build
+### Extensions
 
 * the simplest way of making plugins configurable
     * define the extension class
@@ -817,8 +837,10 @@ allprojects {
 
 ---
 
-## Extensions
-### The goal - configure the plugin in a script
+## Modularizing the build
+### Extensions
+
+The goal - configure the plugin in a script
 
 ```groovy
 apply plugin: ExamplePlugin
@@ -831,8 +853,9 @@ appsExtension {
 
 ---
 
-## Extensions
-### Create the extension class 
+## Modularizing the build
+### Extensions
+Create the extension class 
 
 ```groovy
 class AppsExtension {
@@ -846,8 +869,9 @@ class AppsExtension {
 
 ---
 
-## Extensions
-### Create the extension instance and use it from the plugin
+## Modularizing the build
+### Extensions
+Create the extension instance and use it from the plugin
 
 ```groovy
 class ExamplePlugin implements Plugin<Project> {
@@ -866,9 +890,10 @@ class ExamplePlugin implements Plugin<Project> {
 
 ---
 
-## Extensions - containers
+## Modularizing the build
+### Extensions - containers
 
-### The goal - a cleaner syntax for multiple named items
+The goal - a cleaner syntax for multiple named items
 
 ```groovy
 apply plugin: ExamplePlugin
@@ -881,8 +906,9 @@ appsExtension {
 
 ---
 
-## Extensions - containers
-### Create the single item class 
+## Modularizing the build
+### Extensions - containers
+Create the single item class 
 
 ```groovy
 class App {
@@ -896,8 +922,9 @@ class App {
 
 ---
 
-## Extensions - containers
-### Create the container and use it from the plugin
+## Modularizing the build
+### Extensions - containers
+Create the container and use it from the plugin
 
 ```groovy
 class ExamplePlugin implements Plugin<Project> {
