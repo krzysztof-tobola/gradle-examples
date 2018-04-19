@@ -955,14 +955,6 @@ class ExamplePlugin implements Plugin<Project> {
 
 ---
 
-## There is more…
-
-* https://gradle.org/docs/
-* http://groovy-lang.org/documentation.html
-* Kotlin DSL
-
----
-
 ## Thanks!
 
 .half[![x](img/questions.jpg)]
