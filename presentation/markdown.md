@@ -943,6 +943,18 @@ class ExamplePlugin implements Plugin<Project> {
 
 ---
 
+## Summary
+
+---
+
+### Gradle is code 
+
+## so
+
+# DRY SOLID KISS
+
+---
+
 ## There is more…
 
 * https://gradle.org/docs/
