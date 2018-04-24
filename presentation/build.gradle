@@ -1,0 +1,9 @@
+import static java.lang.Thread.currentThread
+
+task serve(group: "other", description: "Serve the presentation") doLast {
+    def port = 8000
+    def server = new SimpleHttpFileServerFactory().start(file("."), port)
+    addShutdownHook { server.stop() }
+    logger.quiet("serving presentation ${server.getResourceUrl('/index.html')}")
+    currentThread().join()
+}

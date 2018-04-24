@@ -9,6 +9,8 @@ class: center middle
 
 ## Survival guide for Java developers
 
+#### https://github.com/krzysztof-tobola/gradle-examples
+
 ---
 class: center middle
 
@@ -91,6 +93,11 @@ When you want to build your project…
   
 .half[![x](img/project-tree.png)]
 
+```bash
+./gradlew :examples:printStructure
+./gradlew :examples:extensions:printStructure
+```
+
 ---
 
 ## Basic concepts
@@ -146,6 +153,10 @@ dependencies {
     testCompile 'junit:junit:4.12@jar'
     //...
 }
+```
+
+```bash
+./gradlew :examples:custom-repo:dependencies
 ```
 
 ---
@@ -204,20 +215,22 @@ tasks.getByName('task3') dependsOn 'task4'
 ---
 
 ## Basic concepts
-### Project Lifecycle
+### Build Lifecycle
 
 * initialization
     * determine if single or structure of multiproject
+    * instantiate projects
 * configuration
     * project: `beforeEvaluate`, `afterEvaluate`
     * `gradle.afterProject` … (`Gradle` interface)
+    * `tasks.whenTaskAdded`
 * execution
     * run specified tasks
 
 ---
 
 ## Basic concepts
-### Project Lifecycle
+### Build Lifecycle
     
 ```groovy
 println 'Configuration 1'
@@ -235,6 +248,10 @@ task someTask {
 }
 
 ```    
+
+```bash
+./gradlew :examples:project-lifecycle:build
+```
 
 ---
 
@@ -945,11 +962,10 @@ class ExamplePlugin implements Plugin<Project> {
 
 ## Summary
 
----
 
 ### Gradle is code 
 
-## so
+### so
 
 # DRY SOLID KISS
 

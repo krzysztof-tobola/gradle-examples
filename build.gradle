@@ -1,13 +1,18 @@
-import static java.lang.Thread.currentThread
-
 project('examples:project-lifecycle').beforeEvaluate {
     logger.quiet('Configuration 0')
 }
 
-task serve(group: "other", description: "Serve the presentation") doLast {
-    def port = 8000
-    def server = new SimpleHttpFileServerFactory().start(file("presentation/"), port)
-    addShutdownHook { server.stop() }
-    logger.quiet("serving presentation ${server.getResourceUrl('/index.html')}")
-    currentThread().join()
+allprojects {
+    task printStructure() doLast {
+        printMany "allprojects", allprojects
+        printMany "subprojects", subprojects
+        printMany "childProjects", childProjects.values()
+        printMany "rootProject", rootProject
+        printMany "parent", parent
+    }
+}
+
+
+def printMany(name, collection) {
+    println """$name : [\n\t${collection.collect { "{name:'$it.name', path: '$it.path'}" }.join("\n\t")}\n]"""
 }
